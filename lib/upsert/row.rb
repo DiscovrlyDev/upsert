@@ -37,8 +37,8 @@ class Upsert
         memo
       end
 
-      @options[:ignore_on_update] ||= []
-      @options[:ignore_on_update].map!{ |key| key.to_s }
+      @options["ignore_on_update"] ||= []
+      @options["ignore_on_update"].map!{ |key| key.to_s }
 
       # there is probably a more clever way to incrementally sort these hashes
       @selector = sort_hash selector
