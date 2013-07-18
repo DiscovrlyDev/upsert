@@ -34,7 +34,7 @@ class Upsert
         selector_keys = row.selector.keys
         setter_keys = row.setter.keys
         options = row.options
-        key = [controller.table_name, selector_keys, setter_keys]
+        key = [controller.table_name, selector_keys, setter_keys, options["ignore_on_update"]]
         @lookup[key] ||= new(controller, selector_keys, setter_keys, options, controller.assume_function_exists?)
       end
     end
