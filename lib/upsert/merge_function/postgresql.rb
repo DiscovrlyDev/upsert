@@ -54,7 +54,7 @@ class Upsert
 
         selector_column_definitions = column_definitions.select { |cd| selector_keys.include?(cd.name) }
         setter_column_definitions = column_definitions.select { |cd| setter_keys.include?(cd.name) }
-        update_column_definitions = setter_column_definitions.select { |cd| cd.name !~ CREATED_COL_REGEX && !options[:ignore_on_update].include?(cd.name) }
+        update_column_definitions = setter_column_definitions.select { |cd| cd.name !~ CREATED_COL_REGEX && !options["ignore_on_update"].include?(cd.name) }
 
         first_try = true
         connection.execute(%{
