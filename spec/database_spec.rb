@@ -68,12 +68,24 @@ describe Upsert do
       end
       it "does not set the created_at and created_on columns on update" do
         task = Task.create :name => 'Clean bathroom'
-        created = task.created_at
+        created_at = task.created_at
+        created_on = task.created_on
         upsert = Upsert.new $conn, :tasks
         upsert.row({:id => task.id}, :name => 'Clean kitchen')
         task.reload
-        task.created_at.should eql task.created_at
-        task.created_on.should eql task.created_on
+        task.created_at.should eql created_at
+        task.created_on.should eql created_on
+      end
+
+      it "does not set the columns specified by the :ignore_on_update option" do
+        task = Task.create :name => 'Clean bathroom', :priority => 'high'
+        priority = task.priority
+        name = task.priority
+        upsert = Upsert.new $conn, :tasks
+        upsert.row({:id => task.id}, {:name => 'Clean kitchen', :priority => 'low'}, :ignore_on_update => [:priority])
+        task.reload
+        task.priority.should eql priority
+        task.name.should_not eql name
       end
 
       it "converts symbol values to string" do

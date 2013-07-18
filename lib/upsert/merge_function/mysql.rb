@@ -20,9 +20,11 @@ class Upsert
       # http://stackoverflow.com/questions/11371479/how-to-translate-postgresql-merge-db-aka-upsert-function-into-mysql/
       def create!
         Upsert.logger.info "[upsert] Creating or replacing database function #{name.inspect} on table #{table_name.inspect} for selector #{selector_keys.map(&:inspect).join(', ')} and setter #{setter_keys.map(&:inspect).join(', ')}"
+
         selector_column_definitions = column_definitions.select { |cd| selector_keys.include?(cd.name) }
         setter_column_definitions = column_definitions.select { |cd| setter_keys.include?(cd.name) }
-        update_column_definitions = setter_column_definitions.select { |cd| cd.name !~ CREATED_COL_REGEX }
+        update_column_definitions = setter_column_definitions.select { |cd| cd.name !~ CREATED_COL_REGEX && !options[:ignore_on_update].include?(cd.name) }
+
         quoted_name = connection.quote_ident name
         connection.execute "DROP PROCEDURE IF EXISTS #{quoted_name}"
         connection.execute(%{

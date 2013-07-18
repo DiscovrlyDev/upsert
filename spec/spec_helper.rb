@@ -109,6 +109,7 @@ Pet.auto_upgrade!
 
 class Task < ActiveRecord::Base
   col :name
+  col :priority
   col :created_at, :type => :datetime
   col :created_on, :type => :datetime
 end

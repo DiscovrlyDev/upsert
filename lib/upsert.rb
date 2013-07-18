@@ -201,10 +201,13 @@ class Upsert
   #
   # The selector values are used as setters if it's a new row. So if your selector is `name=Jerry` and your setter is `age=4`, and there is no Jerry yet, then a new row will be created with name Jerry and age 4.
   #
+  # The options values are to modify how upsert is performed.  If options is {:ignore_onupdate => [:age]}, the age column will not be modified on update, but will be assigned on insert.  This is useful for instances where a default value for a column is given in setter, but overwriting that column's value is undesireable (e.g. created_at column)
+  #
   # @see http://api.mongodb.org/ruby/1.6.4/Mongo/Collection.html#update-instance_method Loosely based on the upsert functionality of the mongo-ruby-driver #update method
   #
   # @param [Hash] selector Key-value pairs that will be used to find or create a row.
   # @param [Hash] setter Key-value pairs that will be set on the row, whether it previously existed or not.
+  # @param [Hash] options Key-value pairs that will modify how upsert is performed.
   #
   # @return [nil]
   #
@@ -212,8 +215,8 @@ class Upsert
   #   upsert = Upsert.new Pet.connection, Pet.table_name
   #   upsert.row({:name => 'Jerry'}, :breed => 'beagle')
   #   upsert.row({:name => 'Pierre'}, :breed => 'tabby')
-  def row(selector, setter = {})
-    merge_function_class.execute self, Row.new(selector, setter)
+  def row(selector, setter = {}, options = {})
+    merge_function_class.execute self, Row.new(selector, setter, options)
     nil
   end
 
