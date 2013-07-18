@@ -14,9 +14,10 @@ class Upsert
 
     attr_reader :selector
     attr_reader :setter
+    attr_reader :options
 
 
-    def initialize(raw_selector, raw_setter)
+    def initialize(raw_selector, raw_setter, raw_options)
       @selector = raw_selector.inject({}) do |memo, (k, v)|
         memo[k.to_s] = v
         memo
@@ -31,9 +32,18 @@ class Upsert
         setter[missing] = selector[missing]
       end
 
+      @options = raw_options.inject({}) do |memo, (k, v)|
+        memo[k.to_s] = v
+        memo
+      end
+
+      @options["ignore_on_update"] ||= []
+      @options["ignore_on_update"].map!{ |key| key.to_s }
+
       # there is probably a more clever way to incrementally sort these hashes
       @selector = sort_hash selector
       @setter = sort_hash setter
+      @options = sort_hash options
     end
 
     private

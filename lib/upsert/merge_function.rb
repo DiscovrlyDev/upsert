@@ -33,19 +33,22 @@ class Upsert
         @lookup ||= {}
         selector_keys = row.selector.keys
         setter_keys = row.setter.keys
-        key = [controller.table_name, selector_keys, setter_keys]
-        @lookup[key] ||= new(controller, selector_keys, setter_keys, controller.assume_function_exists?)
+        options = row.options
+        key = [controller.table_name, selector_keys, setter_keys, options["ignore_on_update"]]
+        @lookup[key] ||= new(controller, selector_keys, setter_keys, options, controller.assume_function_exists?)
       end
     end
 
     attr_reader :controller
     attr_reader :selector_keys
     attr_reader :setter_keys
+    attr_reader :options
 
-    def initialize(controller, selector_keys, setter_keys, assume_function_exists)
+    def initialize(controller, selector_keys, setter_keys, options, assume_function_exists)
       @controller = controller
       @selector_keys = selector_keys
       @setter_keys = setter_keys
+      @options = options
       validate!
       create! unless assume_function_exists
     end
@@ -74,7 +77,8 @@ class Upsert
 
     def validate!
       possible = column_definitions.map(&:name)
-      invalid = (setter_keys + selector_keys).uniq - possible
+      ignore_on_update_keys = options[:ignore_on_update] || []
+      invalid = (setter_keys + selector_keys + ignore_on_update_keys).uniq - possible
       if invalid.any?
         raise ArgumentError, "[Upsert] Invalid column(s): #{invalid.map(&:inspect).join(', ')}"
       end
